@@ -22,16 +22,19 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !-------------------------
 
 !This is a serial/parallel code for fast electron beam longitudinal
-!forward or backward tracking through an electron linear accelerator.
-!It includes longitudinal space-charge effect, structure
-!and resistive wall wakefields, longitudinal coherent synchrotron radiation effect.
-!To use it as a parallel code, please
-!comment out the "use mpistub" in BeamBunch.f90, rename mpif.h as mpif.hh,
-!and use the Makefile_parallel as Makefile.
-!Each macroparticle has three attributes: delta z (m), delta gamma, and weight (total charge/Np)
-!The physical model is in:
-!J. Qiang, "Fast longitudinal beam dynamics optimization in x-ray free electron laser
-!linear accelerators," Phys. Rev. Accel. Beams 22, 094401 (2019).
+forward or backward tracking through an electron linear accelerator.
+It includes longitudinal space-charge effect, structure
+and resistive wall wakefields, longitudinal coherent synchrotron radiation effect.
+To use it as a parallel code, please
+comment out the "use mpistub" in BeamBunch.f90, rename mpif.h as mpif.hh,
+and use the Makefile_parallel as Makefile.
+Each macroparticle has three attributes: delta z (m), delta gamma, and weight (total charge/Np)
+The physical model is in:
+J. Qiang, "Fast longitudinal beam dynamics optimization in x-ray free electron laser
+linear accelerators," Phys. Rev. Accel. Beams 22, 094401 (2019).
+
+
+
 !----------------
 !Input file: eblt.in
 !-----------------------------------
