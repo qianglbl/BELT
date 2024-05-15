@@ -30,6 +30,7 @@ comment out the "use mpistub" in BeamBunch.f90, rename mpif.h as mpif.hh,
 and use the Makefile_parallel as Makefile.
 Each macroparticle has three attributes: delta z (m), delta gamma, and weight (total charge/Np)
 The physical model is in:
+
 J. Qiang, "Fast longitudinal beam dynamics optimization in x-ray free electron laser
 linear accelerators," Phys. Rev. Accel. Beams 22, 094401 (2019).
 
