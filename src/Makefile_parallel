@@ -1,0 +1,67 @@
+#****************************
+#*** Copyright Notice ***
+#IMPACT-Z,Copyright (c) 2016, The Regents of the University of California, through
+#Lawrence Berkeley National Laboratory (subject to receipt of any required approvals
+#from the U.S. Dept. of Energy).  All rights reserved.
+#If you have questions about your rights to use or distribute this software,
+#please contact Berkeley Lab's Innovation & Partnerships Office at  IPO@lbl.gov.
+#NOTICE.  This Software was developed under funding from the U.S. Department of Energy
+#and the U.S. Government consequently retains certain rights. As such, the U.S. Government
+#has been granted for itself and others acting on its behalf a paid-up, nonexclusive, irrevocable,
+#worldwide license in the Software to reproduce, distribute copies to the public, prepare
+#derivative works, and perform publicly and display publicly, and to permit other to do so.
+#****************************
+
+#*****************************************************
+#  General Makefile
+#
+#*****************************************************
+
+#**************************************************************************
+# Macros defining the Fortran, C/C++ compiler and linker.
+
+CC = ftn
+LINK = ftn
+FFLAGS = -O3 -fallow-argument-mismatch
+
+#**************************************************************************
+# List of .o files that EXENAME depends on.  Edit as appropriate for MP.
+
+OBJS = \
+	FFT.o BPM.o Input.o BeamBunch.o AccSimulator.o main.o 
+
+#**************************************************************************
+# Change this line if you don't like 'a.out'.
+
+EXEOLD = xeblt
+
+#************************************************************************
+# disable predefined suffixes and define your own set of allowed suffixes
+ .SUFFIXES:
+ .SUFFIXES: .o .f .F .c .f90 .F90
+
+#*************************************************************************
+# inference rules (how to compile object files that have no explicit rules)
+#  $* = name part of target
+#  $@ = full target name
+#  $< = dependent name
+
+.f90.o:
+	$(CC) -c $(FFLAGS) $<
+
+#**************************************************************************
+# Rules for building EXENAME from OBJS and OBJS from your source.
+
+$(EXEOLD):  $(OBJS) 
+	$(LINK) -o $(EXEOLD) $(OBJS) 
+
+#************************************************************************
+# if you wish to compile a certain object with different flags
+# or in some special way, then specify the target & dependency explicitly
+# the following line say Timer.o is depended on Timer.f90
+#Timer.o: Timer.f90
+#	$(CC) -c -O3 Timer.f90
+
+#***********************************************************************
+clean:
+	-rm *.o $(EXEOLD) *.mod */*.o
