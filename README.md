@@ -18,7 +18,7 @@ Software to reproduce, distribute copies to the public, prepare derivative
 works, and perform publicly and display publicly, and to permit others to do so.
 
 -------------------------
-Author: Ji Qiang (jqiang@lbl.gov), LBNL
+Contact: Ji Qiang (jqiang@lbl.gov), LBNL
 -------------------------
 
 This is a serial/parallel code for fast electron beam longitudinal
