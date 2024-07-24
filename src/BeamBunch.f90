@@ -777,4 +777,103 @@
      derivf = psi**3/3+xxh*psi**2+2*psi+2*xxh-2*deltas
      end subroutine
 
+
+        !This subroutine calculates the 1d csr wakefield including
+        !only stead-state effects using IGF.
+        !Here, hx, rho,...are in real units. The return ezwake is in V/m.
+        subroutine csrwakeSS_FieldQuant(Nx,r0,hx,rhonew,gam,ezwake)
+        implicit none
+        integer, intent(in) :: Nx
+        real*8 :: r0,hx,gam
+        real*8, dimension(Nx) :: rhonew,ezwake
+        integer :: i,j
+        real*8 :: ca,ss,ssp,ssm,wigf
+
+        ca = 3*gam**3/(2*r0)
+
+        ezwake(1) = 0.0 
+        do i = 2, Nx
+
+           ezwake(i) = 0.0
+           !contribution of 1st half cell
+           ssp = ca*hx
+           ssm = ca*hx/2
+           wigf = (nu(ssp,r0,gam)-nu(ssm,r0,gam))/ca
+           ezwake(i) = ezwake(i) + wigf*rhonew(1)
+           !contribution of middle cells
+           do j = 2, i-1
+              ss = (i-j)*hx
+              ssp = ca*(ss+hx/2)
+              ssm = ca*(ss-hx/2)
+              wigf = (nu(ssp,r0,gam)-nu(ssm,r0,gam))/ca
+              ezwake(i) = ezwake(i) + wigf*rhonew(j)
+           enddo
+           !contribution of last half cell
+           ssp = ca*hx/2
+           wigf = nu(ssp,r0,gam)/ca
+           ezwake(i) = ezwake(i) + wigf*rhonew(i)
+        enddo
+
+        end subroutine csrwakeSS_FieldQuant
+
+        function nu(x,r0,gam)
+        implicit none
+        real*8 :: x,r0,gam,nu
+        real*8 :: Omega,pilc,xconst,o1,o2,t2,t3
+
+        pilc = 2*asin(1.0d0)
+
+!        xconst = 1.60218d-19/(4*pilc*8.854187817d-12)
+        xconst = 1.0d0/(4*pilc*8.854187817d-12)
+        Omega = x+sqrt(1+x**2)
+	o1 = Omega**(1.0d0/3)+Omega**(-1.0d0/3)
+        o2 = Omega**(2.0d0/3)-Omega**(-2.0d0/3)
+        t2 = o1/(x*sqrt(1+x**2))
+        t3 = 2*o2/sqrt(1+x**2)
+        nu = -xconst*gam**4/r0**2*3.0d0/4*(-2.d0/x+t2+t3)
+
+        end function nu
+
+        !This subroutine calculates the 1d csr wakefield including
+        !only stead-state effects using IGF.
+        !Here, hx, rho,...are in real units. The return ezwake is in V/m.
+        subroutine csrwakeSS2_FieldQuant(Nx,r0,hx,rhonew,gam,ezwake)
+        implicit none
+        integer, intent(in) :: Nx
+        real*8 :: r0,hx,gam
+        real*8, dimension(Nx) :: rhonew,ezwake
+        real*8, dimension(Nx) :: rhopnew
+        integer :: i,j
+        real*8 :: pilc,eps0,ss
+
+
+        !compute 1st derv.
+        rhopnew(1) = (rhonew(2)-rhonew(1))/hx
+        do i = 2, Nx-1
+          rhopnew(i) = (rhonew(i+1)-rhonew(i-1))/(2*hx)
+        enddo
+        rhopnew(Nx) = (rhonew(Nx)-rhonew(Nx-1))/hx
+
+        ezwake(1) = 0.0 
+        do i = 2, Nx
+           ezwake(i) = 0.0
+           do j = 1, i-1
+              ss = (i-j)*hx
+              ezwake(i) = ezwake(i) + ss**(-1.0d0/3.0d0)*rhopnew(j)*hx
+           enddo
+!           ss = (i-1)*hx
+!           ezwake(i) = ezwake(i) - 0.5*hx*ss**(-1.0d0/3.0d0)*rhopnew(1)
+        enddo
+
+        eps0 = 8.854187817d-12
+        pilc = 2*asin(1.0d0)
+        ezwake(:) = -(2.d0*1.0d0/(3.d0*r0**2)**(1.d0/3.d0))*&
+                        ezwake(:)/(4*pilc*eps0) ! e=-1.0
+
+
+        end subroutine csrwakeSS2_FieldQuant
+
+        
+        
+
       end module BeamBunchclass

@@ -78,7 +78,7 @@
         real*8 :: b0,b1,b2,b3,b4,b5,b6,b7,b8,b9
         real*8 :: hz,phsini,gam0,gam0tmp
         integer :: ierr,npl,npu,ii
-        real*8 :: Pi,scxl,beta0,chglc
+        real*8 :: Pi,scxl,beta0,chglc,sqpi
 
         call MPI_INIT(ierr)
 
@@ -122,6 +122,7 @@
         gam0 = Bkenergy/Bmass+1.0d0
         beta0 = sqrt(1.0d0-1.0d0/gam0**2)
         Pi = 2*asin(1.0d0)
+        sqpi = sqrt(2*Pi)
         scxl = clite*beta0/(2*Pi*Bfreq)
 
         allocate(Bpts%Pts1(3,Nplc))
@@ -153,7 +154,7 @@
 !          isamp = 0
           isamp = abs(a0)+0.001 
         else
-          isamp = 1
+          isamp = a0
         endif
         print*,"isamp: ",isamp
         !print*,"hz:",hz,clite,a0
@@ -170,7 +171,20 @@
                            a6*z**6+a7*z**7+a8*z**8+a9*z**9)*hz/clite
             endif
           enddo
-          !print*,"cur:",Bpts%Pts1(3,1)
+        
+        else if(isamp.eq.2) then
+          do i = 1, Np
+            z = zmin + (i-1)*hz
+            if((i.ge.npl).and.(i.le.npu)) then
+              ii = i - myid*Nplc
+              Bpts%Pts1(1,ii) = z
+              Bpts%Pts1(2,ii) = b0+b1*z+b2*z**2+b3*z**3+b4*z**4+b5*z**5+&
+                           b6*z**6+b7*z**7+b8*z**8+b9*z**9
+              Bpts%Pts1(3,ii) = a0*(a1*exp(-((z-a2)/a3)**2/2)/a3+&
+                      a4*exp(-((z-a5)/a6)**2/2)/a6 + &
+                      a7*exp(-((z-a8)/a9)**2/2)/a9)*hz/clite/sqpi
+            endif
+          enddo
         else if(isamp.eq.100) then !read in from the EBLT output particle dist.
           open(1,file="pts.in",status="old") 
           do i = 1, Np
@@ -408,8 +422,6 @@
               flagsc = int(beamln(i)%Param(8))
               if(flagfwd.eq.1) then !forward
                 call chicane_BPM(Bpts%Pts1,Nplc,gamma0,r56,t566,u5666,g0)
-              else
-                call chicanebkwd_BPM(Bpts%Pts1,Nplc,gamma0,r56,t566,u5666,g0)
               endif
               r0 = abs(blength)/bangle
               !this is due longitudinal shift
@@ -463,7 +475,8 @@
                 ezwake = scwk*ezwake
              endif
 
-             if(flagcsr.eq.1) then
+             !if(flagcsr.eq.1) then
+             if(flagcsr.ge.1) then
                 if(bitype.eq.4) then
                    !zwkmin = zminpt + (z-zbleng)
                    zwkmin = zmingl + (z-zbleng)
@@ -473,9 +486,17 @@
                 endif
 
                 ezwake = 0.0d0
+                if(flagcsr.eq.1) then
 !using IGF for the s-s csr wake
-                call csrwakeTrIGF_FieldQuant(Nz,r0,zwkmin,hz,&
+                  call csrwakeTrIGF_FieldQuant(Nz,r0,zwkmin,hz,&
                               bendlen,densz,gamma0,ezwake)
+                else if(flagcsr.eq.2) then
+                  call csrwakeSS_FieldQuant(Nz,r0,hz,&
+                              densz,gamma0,ezwake)
+                else if(flagcsr.eq.3) then
+                  call csrwakeSS2_FieldQuant(Nz,r0,hz,&
+                              densz,gamma0,ezwake)
+                endif
              endif
 
              ezlsc = ezlsc + ezwake
@@ -513,6 +534,10 @@
           end do
 !end loop bnseg
 !---------------------------------------------------------------------
+          if(bitype.eq.4 .and. flagfwd.ne.1) then !backward
+            call chicanebkwd_BPM(Bpts%Pts1,Nplc,gamma0,r56,t566,u5666,g0)
+          endif
+
           zbleng = zbleng + blength
         enddo
 !end loop through nbeam line element

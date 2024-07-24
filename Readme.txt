@@ -37,11 +37,12 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !"1024" # of longitudinal particles for beam distribution, 
 !"256 # of grid points for collective effect (LSC,CSR,wakefield) calculation
 !"-0.7910726E-02" z_min (m) and "0.7105112E-02" z_max (m)
-!"1" switch flag for forward tracking.
+!"1" switch flag for forward tracking, otherwise backward tracking.
 1024 256 -0.7910726E-02  0.7105112E-02 1
 !--------
 !"-200" switch for input distribution:
 !1-use the polynominal coefficients of current and longitudinal phase space,
+!2-use the Gaussian current profile and poly. longitudinal phase space,
 !-100.0-readin from EBLT particle output,
 !-200.0-readin from ImpactZ slice output,
 !-300.0-readin from ImpactZ particle output,
@@ -80,7 +81,7 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !length, "10" # of steps, if # of maps is "1" calculate r56, t566, u5666 for 4 dipole C chicane using
 !bending angle "0.09962502193", drift between b1-2, b3-4 "2.44781923989" and 
 !bend length "0.203558243263",
-!if # of maps is "-1", "2.44781923989"->r56, "-0.0773102006514754"->t566, "0.103080267535301"->u5666. 
+!if # of maps is "-1", "2.44781923989"->r56, "-0.0773102006514754"->t566, "0.103080267535301"->u5666. "1.01"-> IGF CSR including A and B, "2.01" -> IGF steady state CSR"0.0"-> no CSR.
 0.203558243263 10 1 4 0.3e-3 2.44781923989 -0.0773102006514754 0.103080267535301 0.09962502193 1.01 0.0 / 1.005x
 
 !--------------------------------------------------------
