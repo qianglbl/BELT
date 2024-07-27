@@ -297,6 +297,7 @@
         integer :: ierr,ipt
         real*8, dimension(4) :: ztmplc,ztmpgl
         real*8 :: zavg,zsig,deavg,desig
+        integer :: nblstart,nblend,ie
 
 !-------------------------------------------------------------------
 ! prepare initial parameters, allocate temporary array.
@@ -333,18 +334,36 @@
         deavg = ztmpgl(3)
         desig = sqrt(ztmpgl(4)-deavg**2)
 
+        flagcsr = 0
+        flagsc  = 1
+        flagwake = 0
+        nstep = 0
+
+        if(flagfwd.eq.1) then !forward tracking
+          nblstart = 1
+          nblend = Nblem
+          ie = 1
+          z=0.0d0
+          zbleng = 0.0d0
+        else
+          nblstart = Nblem
+          nblend = 1
+          ie = -1
+          z=0.0d0
+          do i = 1, Nblem
+            z  = z + beamln(i)%Length
+          enddo
+          zbleng = z
+        endif
+         
         if(myid.eq.0) then
         write(2,1011)z,(Bpts%refptcl(6)-1)*Bmass,Bpts%refptcl(6),zavg,zsig,deavg,desig
         endif
 
-        flagcsr = 0
-        flagsc  = 1
-        flagwake = 0
-        zbleng = 0.0d0
-        nstep = 0
 !-------------------------------------------------------------------
 ! start looping through 'Nblem' beam line elements.
-        do i = 1, Nblem
+!        do i = 1, Nblem
+        do i = nblstart, nblend, ie
 
           bitype = beamln(i)%Itype
           blength = beamln(i)%Length
@@ -354,7 +373,7 @@
           if(myid.eq.0) print*,"enter elment (type code): ",i,bitype
 
           tau1 = 0.0d0
-          if(bitype.ge.0) tau1 = 0.5d0*blength/bnseg
+          if(bitype.ge.0) tau1 = 0.5d0*blength/bnseg*ie
           tau2 = 2.0d0*tau1
 
           gamma0 = Bpts%refptcl(6)
@@ -372,7 +391,7 @@
           if(bitype.eq.-41)then
             tmpwk = beamln(i)%Param(2)
             rfile = beamln(i)%Param(3)
-            tmp1 = beamln(i)%Param(4)
+            tmp1 = beamln(i)%Param(4)*ie
             if(rfile.gt.0.0d0) then
               ifile = int(rfile + 0.1)
               call read1wk_Data(ifile,ndatawk,lenwk,wklong)
@@ -381,7 +400,6 @@
                 stop
               endif
             endif
-            !print*,"-41flagbc: ",tmpwk,rfile,tmp1
             if(tmp1.gt.0.0d0) then !turn on the read-in wakefield.
               flagwake = 1
               scwk = tmpwk
@@ -538,7 +556,7 @@
             call chicanebkwd_BPM(Bpts%Pts1,Nplc,gamma0,r56,t566,u5666,g0)
           endif
 
-          zbleng = zbleng + blength
+          zbleng = zbleng + blength*ie
         enddo
 !end loop through nbeam line element
 !------------------------------------------------

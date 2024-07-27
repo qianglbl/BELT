@@ -141,7 +141,7 @@
 
         !inputs are real units
         ! scatter field onto particles from grid.
-        subroutine scatter(innp,innz,rays,fld,hz,zmin,tau,qmass)
+        subroutine scatterlin(innp,innz,rays,fld,hz,zmin,tau,qmass)
         implicit none
         integer, intent(in) :: innp,innz
         real*8, intent(in) :: qmass
@@ -165,13 +165,13 @@
 
 !        print*,"zmm: ",minval(rays(1,:))
         
-        end subroutine scatter
+        end subroutine scatterlin
 
         ! rays(1,:) -> z
         ! rays(2,:) -> delta E
         ! rays(3,:) -> density weight (C/m)
         ! deposit particles onto grid.
-        subroutine deposit(innp,innz,rays,rho,hz,zmin,commin)
+        subroutine depositlin(innp,innz,rays,rho,hz,zmin,commin)
         implicit none
         include "mpif.h"
         integer, intent(in) :: innp,innz
@@ -195,6 +195,122 @@
 
           rho(kx) = rho(kx) + ef*rays(3,i)
           rho(kx1) = rho(kx1)+(1.0d0-ef)*rays(3,i)
+        enddo
+
+        call MPI_ALLREDUCE(rho,rhogl,innz,MPI_DOUBLE_PRECISION,&
+             MPI_SUM,commin,ierr)
+        rho = rhogl
+
+!        print*,"sum rho1:",sum(rho)
+
+        rho = rho/hz
+
+        end subroutine depositlin
+
+
+        !inputs are real units
+        ! scatter field onto particles from grid.
+        subroutine scatter(innp,innz,rays,fld,hz,zmin,tau,qmass)
+        implicit none
+        integer, intent(in) :: innp,innz
+        real*8, intent(in) :: qmass
+        double precision, intent (inout), dimension (3,innp) :: rays
+        double precision, intent (in), dimension (innz) :: fld
+        integer :: kx,kx1,i,kx2
+        double precision :: ab
+        double precision :: hz,hzi,zmin,tmpfld,tau
+        real*8 :: wkx,wkx1,wkx2
+
+        hzi = 1.0d0/hz
+
+        do i = 1, innp
+          kx=(rays(1,i)-zmin)*hzi + 1 
+          kx1=kx+1
+          
+          ab=(rays(1,i)-zmin-(kx-1)*hz)*hzi
+
+          if(kx.eq.1 .and. ab.le.0.5d0) then !linear interpolation
+             wkx = 1.0d0-ab 
+             wkx1 = ab
+             tmpfld = fld(kx)*wkx+fld(kx1)*wkx1
+          else if(kx.eq.innz-1 .and. ab.gt.0.5d0) then
+             wkx = 1.0d0-ab 
+             wkx1 = ab
+             tmpfld = fld(kx)*wkx+fld(kx1)*wkx1
+          else
+            if(ab.le.0.5d0) then
+              kx2 = kx - 1
+              wkx = 0.75d0-ab*ab
+              wkx1 = (0.5d0+ab)**2/2
+              wkx2 = (0.5d0-ab)**2/2
+            else
+              kx2 = kx + 2
+              wkx = (1.5d0-ab)**2/2
+              wkx1 = 0.75d0 - (1-ab)*(1-ab)
+              wkx2 = (ab-0.5d0)**2/2
+            endif
+            tmpfld = fld(kx)*wkx+fld(kx1)*wkx1+fld(kx2)*wkx2
+          endif
+
+          rays(2,i) = rays(2,i) + tmpfld/qmass*tau
+        enddo
+
+        
+        end subroutine scatter
+
+        ! rays(1,:) -> z
+        ! rays(2,:) -> delta E
+        ! rays(3,:) -> density weight (C/m)
+        ! deposit particles onto grid.
+        subroutine deposit(innp,innz,rays,rho,hz,zmin,commin)
+        implicit none
+        include "mpif.h"
+        integer, intent(in) :: innp,innz
+        integer, intent(in) :: commin
+        double precision, intent (in), dimension (3,innp) :: rays
+        double precision, intent (out), dimension (innz) :: rho
+        double precision, dimension (innz) :: rhogl
+        integer :: kx,kx1,kx2
+        double precision :: ab
+        double precision :: hz,hzi,zmin
+        integer :: ierr,i
+        real*8 :: wkx,wkx1,wkx2
+
+        hzi = 1.0d0/hz
+
+        rho=0.0d0
+        rhogl=0.0d0
+        do i = 1, innp
+          kx=(rays(1,i)-zmin)*hzi + 1 
+          ab=(rays(1,i)-zmin-(kx-1)*hz)*hzi
+          kx1=kx+1
+
+          if(kx.eq.1 .and. ab.le.0.5d0) then !linear interpolation
+              kx2 = kx 
+              wkx = 0.75d0-ab*ab
+              wkx1 = (0.5d0+ab)**2/2
+              wkx2 = 0.0d0
+          else if(kx.eq.innz-1 .and. ab.gt.0.5d0) then
+              kx2 = kx 
+              wkx = (1.5d0-ab)**2/2
+              wkx1 = 0.75d0 - (1-ab)*(1-ab)
+              wkx2 = 0.0d0
+          else
+            if(ab.le.0.5d0) then
+              kx2 = kx - 1
+              wkx = 0.75d0-ab*ab
+              wkx1 = (0.5d0+ab)**2/2
+              wkx2 = (0.5d0-ab)**2/2
+            else
+              kx2 = kx + 2
+              wkx = (1.5d0-ab)**2/2
+              wkx1 = 0.75d0 - (1-ab)*(1-ab)
+              wkx2 = (ab-0.5d0)**2/2
+            endif
+          endif
+          rho(kx) = rho(kx) + wkx*rays(3,i)
+          rho(kx1) = rho(kx1)+wkx1*rays(3,i)
+          rho(kx2) = rho(kx2)+wkx2*rays(3,i)
         enddo
 
         call MPI_ALLREDUCE(rho,rhogl,innz,MPI_DOUBLE_PRECISION,&
@@ -873,7 +989,5 @@
 
         end subroutine csrwakeSS2_FieldQuant
 
-        
-        
 
       end module BeamBunchclass
