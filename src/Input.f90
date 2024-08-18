@@ -24,11 +24,11 @@
  
         ! Input all parameters except beam line element parameters.
         subroutine in1_Input(onp,onz,distparam,nparam,obcurr,obkenergy,obmass,&
-        obcharge,obfreq,oxrad,oyrad,onblem,oflagfwd)
+        obcharge,obfreq,oxrad,oyrad,onblem,oflagfwd,oflagdist)
 
         implicit none
         integer, intent(out) :: onp,onz
-        integer, intent(out) :: onblem,oflagfwd
+        integer, intent(out) :: onblem,oflagfwd,oflagdist
         integer, intent(in) :: nparam
         double precision, dimension(nparam), intent(out) :: distparam
         double precision, intent(out) :: obcurr,obkenergy,obmass
@@ -51,7 +51,7 @@
             goto 30
           else
             backspace(13,err=789)
-            read(13,*)onp,onz,oxrad,oyrad,oflagfwd
+            read(13,*)onp,onz,oxrad,oyrad,oflagfwd,oflagdist
             ii = ii+1
           endif 
           distparam = 0.0
