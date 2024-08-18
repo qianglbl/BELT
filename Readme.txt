@@ -38,16 +38,16 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !"256 # of grid points for collective effect (LSC,CSR,wakefield) calculation
 !"-0.7910726E-02" z_min (m) and "0.7105112E-02" z_max (m)
 !"1" switch flag for forward tracking, otherwise backward tracking.
-1024 256 -0.7910726E-02  0.7105112E-02 1
+1024 256 -0.7910726E-02  0.7105112E-02 1 200
 !--------
 !"-200" switch for input distribution:
 !1-use the polynominal coefficients of current and longitudinal phase space,
 !2-use the Gaussian current profile and poly. longitudinal phase space,
-!-100.0-readin from EBLT particle output,
-!-200.0-readin from ImpactZ slice output,
-!-300.0-readin from ImpactZ particle output,
+!100.0-readin from EBLT particle output,
+!200.0-readin from ImpactZ slice output,
+!300.0-readin from ImpactZ particle output,
 !those are polynominal coefficients a0 to a9 for current (A) profile
--200.0 0.0 0.0 /
+0.0 0.0 0.0 /
 !---------
 !polynominal coefficients b0 to b9 delta gamma-z profile
 1.0 0.0 0.0  /
