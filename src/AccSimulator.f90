@@ -53,7 +53,7 @@
 
         real*8 :: clite
 
-        integer :: flagfwd
+        integer :: flagfwd,flagdist
         real*8 :: Bchgtot
 
         !beam line element period.
@@ -93,7 +93,7 @@
 ! get all global input parameters.
         distparam = 0.0d0
         call in_Input(Np,Nz,distparam,20,Bcurr,Bkenergy,Bmass,Bcharge,&
-        Bfreq,zmin,zmax,Nblem,flagfwd)
+        Bfreq,zmin,zmax,Nblem,flagfwd,flagdist)
  
         Nplc = Np/nproc
         if(mod(Np,nproc).ne.0) then
@@ -150,12 +150,13 @@
         b8 = distparam(19)
         b9 = distparam(20)
 
-        if(a0.lt.0) then
-!          isamp = 0
-          isamp = abs(a0)+0.001 
-        else
-          isamp = a0
-        endif
+!        if(a0.lt.0) then
+!!          isamp = 0
+!          isamp = abs(a0)+0.001 
+!        else
+!          isamp = a0
+!        endif
+        isamp = flagdist
         print*,"isamp: ",isamp
         !print*,"hz:",hz,clite,a0
 
