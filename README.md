@@ -1,7 +1,7 @@
 # BELT: BEam Longitudinal Tracking (forward or backward)
 *** Copyright Notice ***
 
-Electron Beam Longitudinal Tracking  (EBLT) Copyright (c) 2024, The
+BEam Longitudinal Tracking  (BELT) Copyright (c) 2024, The
 Regents of the University of California, through Lawrence Berkeley National Labo
 ratory (subject to receipt of any required approvals from the U.S. Dept. of Ener
 gy). All rights reserved.
