@@ -1,4 +1,4 @@
-# EBLT: Electron Beam Longitudinal Tracking (forward or backward)
+# BELT: BEam Longitudinal Tracking (forward or backward)
 *** Copyright Notice ***
 
 Electron Beam Longitudinal Tracking  (EBLT) Copyright (c) 2024, The
