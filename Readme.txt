@@ -1,5 +1,5 @@
 !-------------------------------------------
-!EBLT - Electron Beam Longitudinal Tracking (forward or backward)
+!BELT - BEam Longitudinal Tracking (forward or backward)
 !-------------------------------------------
 *** Copyright Notice ***
 
