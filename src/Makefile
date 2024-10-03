@@ -1,7 +1,7 @@
 #****************************
 #*** Copyright Notice ***
 #****************************
-#Electron Beam Longitudinal Tracking  (EBLT) Copyright (c) 2024, The
+#BEam Longitudinal Tracking  (BELT) Copyright (c) 2024, The
 #Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy). All rights reserved.
 #
 #If you have questions about your rights to use or distribute this software,
@@ -38,7 +38,7 @@ OBJS = \
 #**************************************************************************
 # Change this line if you don't like 'a.out'.
 
-EXEOLD = xeblt
+EXEOLD = xbelt
 
 #************************************************************************
 # disable predefined suffixes and define your own set of allowed suffixes

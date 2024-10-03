@@ -3,7 +3,7 @@
 !-------------------------------------------
 *** Copyright Notice ***
 
-Electron Beam Longitudinal Tracking  (EBLT) Copyright (c) 2024, The
+BEam Longitudinal Tracking  (BELT) Copyright (c) 2024, The
 Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy). All rights reserved.
 
 If you have questions about your rights to use or distribute this software,
@@ -20,4 +20,4 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !Author: Ji Qiang, LBNL
 !-------------------------
 To compile the code, type make if you already have a gfortran compile.
-The output executable is xeblt.
+The output executable is xbelt.

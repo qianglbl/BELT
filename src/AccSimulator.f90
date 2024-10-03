@@ -1,8 +1,8 @@
 !----------------------------------------------------------------
-!EBLT -  Electron Beam Longitudinal Tracking (forward and backward)
+!BELT -  BEam Longitudinal Tracking (forward and backward)
 !*** Copyright Notice ***
 
-!Electron Beam Longitudinal Tracking  (EBLT) Copyright (c) 2024, The
+!BEam Longitudinal Tracking  (BELT) Copyright (c) 2024, The
 !Regents of the University of California, through Lawrence Berkeley National Laboratory (subject to receipt of any required approvals from the U.S. Dept. of Energy). All rights reserved.
 
 !If you have questions about your rights to use or distribute this software,
@@ -299,6 +299,7 @@
         real*8, dimension(4) :: ztmplc,ztmpgl
         real*8 :: zavg,zsig,deavg,desig
         integer :: nblstart,nblend,ie
+        real*8 :: b0,qmass
 
 !-------------------------------------------------------------------
 ! prepare initial parameters, allocate temporary array.
@@ -384,7 +385,12 @@
             if(sample.eq.0) sample = 1
             call output(myid,commeblt,nproc,Nplc,sample,Nz,ifile,Bpts%Pts1,gamma0)
           endif
-          if(bitype.eq.-39)then
+          if(bitype.eq.-38)then !instant enery spread increase
+            b0 = beamln(i)%Param(2)
+            qmass = 1.0d0/Bmass
+            call engheater(Bpts%Pts1,Nplc,b0,qmass)
+          endif
+          if(bitype.eq.-39)then !instant enery increase
             deleng = beamln(i)%Param(2)
             Bpts%refptcl(6) = Bpts%refptcl(6) + deleng/Bmass
 !            print*,"refpt eng:",(Bpts%refptcl(6)-1.d0)*Bmass
@@ -731,5 +737,47 @@
         call MPI_BARRIER(commin,ierr)
         
         end subroutine output
+
+        !The following subroutine increases the uncorrelated energy spread by heating
+        subroutine engheater(rays,innp,b0,qmass)
+        implicit none
+        include 'mpif.h'
+        integer, intent(in) :: innp
+        double precision, intent (in), dimension (3,innp) :: rays
+        double precision, pointer, dimension(:,:) :: Pts1
+        real*8 :: b0,qmass
+        real*8, dimension(innp) :: rd
+        integer :: i
+        real*8 :: sigeng
+
+        sigeng = b0*qmass
+        call normVec1(rd,innp)
+
+        do i = 1, innp
+          Pts1(2,i) = Pts1(2,i) + sigeng*rd(i)
+        enddo
+
+        end subroutine engheater
+
+        subroutine normVec1(y,num)
+        implicit none
+        include 'mpif.h'
+        integer, intent(in) :: num
+        double precision, dimension(num), intent(out) :: y
+        double precision :: twopi,epsilon
+        double precision, dimension(num) :: x1,x2
+        integer :: i
+
+        epsilon = 1.0d-18
+
+        twopi = 4.0d0*asin(1.0d0)
+        call random_number(x2)
+        call random_number(x1)
+        do i = 1, num
+          if(x1(i).eq.0.0d0) x1(i) = epsilon
+          y(i) = sqrt(-2.0d0*log(x1(i)))*cos(twopi*x2(i))
+        enddo
+
+        end subroutine normVec1
 
       end module AccSimulatorclass
