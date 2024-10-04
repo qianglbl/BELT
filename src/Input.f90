@@ -8,7 +8,7 @@
 !              parameters in the accelerator.
 ! Comments: J. Q. modified the source code so that the user can put
 !           coments line starting with "!" for each number line in the
-!           input file "eblt.in".
+!           input file "belt.in".
 !----------------------------------------------------------------
       module Inputclass
         interface in_Input
@@ -39,8 +39,8 @@
         character*1 comst
         integer :: ii,jj,i
 
-          print*,"Read input data from file - eblt.in:"
-          open(unit=13,file='eblt.in',status='old')
+          print*,"Read input data from file - belt.in:"
+          open(unit=13,file='belt.in',status='old')
 
           ii = 0
           jj = 0 
