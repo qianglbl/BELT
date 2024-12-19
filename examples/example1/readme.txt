@@ -3,7 +3,7 @@ forward tracking a linear accelerator
 -------------------
 Input files:
 pts.in -- initial distribution information
-eblt.in -- accelerator lattice input
+belt.in -- accelerator lattice input
 Output files:
 -------------------
 !fort.2: 3 columns - distance, kin. energy, gamma , <dz>, rms dz, <delta gamma>, rms delta gamma
