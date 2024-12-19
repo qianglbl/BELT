@@ -32,7 +32,7 @@ works, and perform publicly and display publicly, and to permit others to do so.
 !linear accelerators," Phys. Rev. Accel. Beams 22, 094401 (2019).
 
 !----------------
-!Input file: eblt.in
+!Input file: belt.in
 !-----------------------------------
 !"1024" # of longitudinal particles for beam distribution, 
 !"256 # of grid points for collective effect (LSC,CSR,wakefield) calculation
