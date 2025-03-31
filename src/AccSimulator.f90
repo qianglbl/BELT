@@ -87,7 +87,7 @@
         call MPI_COMM_RANK(commeblt,myid,ierr)
 
         flagfwd = 1
-        print*,"EBLT - Electron Beam Longitudinal Tracking (forward or backward): Vs1.0beta"
+        print*,"BELT - BEam Longitudinal Tracking (forward or backward): Vs1.3"
         clite = 299792458.0d0
 !-------------------------------------------------------------------
 ! get all global input parameters.
@@ -181,6 +181,9 @@
               Bpts%Pts1(1,ii) = z
               Bpts%Pts1(2,ii) = b0+b1*z+b2*z**2+b3*z**3+b4*z**4+b5*z**5+&
                            b6*z**6+b7*z**7+b8*z**8+b9*z**9
+              if(abs(a3).lt.1.0d-12) a3 = 1.0
+              if(abs(a6).lt.1.0d-12) a6 = 1.0
+              if(abs(a9).lt.1.0d-12) a9 = 1.0
               Bpts%Pts1(3,ii) = a0*(a1*exp(-((z-a2)/a3)**2/2)/a3+&
                       a4*exp(-((z-a5)/a6)**2/2)/a6 + &
                       a7*exp(-((z-a8)/a9)**2/2)/a9)*hz/clite/sqpi
