@@ -87,7 +87,7 @@
         call MPI_COMM_RANK(commeblt,myid,ierr)
 
         flagfwd = 1
-        print*,"BELT - BEam Longitudinal Tracking (forward or backward): Vs1.3"
+        print*,"BELT - BEam Longitudinal Tracking (forward or backward): V1.4"
         clite = 299792458.0d0
 !-------------------------------------------------------------------
 ! get all global input parameters.
