@@ -69,7 +69,7 @@
         integer :: i,j
         integer, allocatable, dimension(:) :: bnseg,bmpstp,bitype
         double precision, allocatable, dimension(:) :: blength,val1,&
-        val2, val3,val4,val5,val6,val7,val8
+        val2, val3,val4,val5,val6,val7,val8,val9
         double precision :: z,zmin,zmax
         double precision, dimension(8) :: tmpbpm
         double precision, dimension(9) :: tmp1
@@ -249,9 +249,10 @@
         allocate(bitype(Nblem))
         allocate(val1(Nblem),val2(Nblem),val3(Nblem),val4(Nblem))
         allocate(val5(Nblem),val6(Nblem),val7(Nblem),val8(Nblem))
+        allocate(val9(Nblem))
 
         call in_Input(Nblem,blength,bnseg,bmpstp,bitype,val1,val2,val3,&
-        val4,val5,val6,val7,val8)
+        val4,val5,val6,val7,val8,val9)
 
         ibpm = 0
         do i = 1, Nblem
@@ -266,13 +267,15 @@
             tmpbpm(6) = val5(i)
             tmpbpm(7) = val6(i)
             tmpbpm(8) = val7(i)
+            tmpbpm(9) = val8(i)
+            tmpbpm(10) = val9(i)
             call setparam_BPM(beamln(ibpm),tmpbpm)
         enddo
 !-------------------------------------------------------------------
         print*,"pass setting up lattice..."
 
         deallocate(blength,bnseg,bmpstp,bitype)
-        deallocate(val1,val2,val3,val4,val5,val6,val7,val8)
+        deallocate(val1,val2,val3,val4,val5,val6,val7,val8,val9)
         call MPI_BARRIER(commeblt,ierr)
 
         end subroutine init_AccSimulator
@@ -301,8 +304,8 @@
         integer :: ierr,ipt
         real*8, dimension(4) :: ztmplc,ztmpgl
         real*8 :: zavg,zsig,deavg,desig
-        integer :: nblstart,nblend,ie
-        real*8 :: b0,qmass
+        integer :: nblstart,nblend,ie,NLimg
+        real*8 :: b0,qmass,dvert
 
 !-------------------------------------------------------------------
 ! prepare initial parameters, allocate temporary array.
@@ -448,6 +451,8 @@
               endif
               flagcsr = int(beamln(i)%Param(7))
               flagsc = int(beamln(i)%Param(8))
+              dvert = beamln(i)%Param(9)
+              NLimg = int(beamln(i)%Param(10))
               if(flagfwd.eq.1) then !forward
                 call chicane_BPM(Bpts%Pts1,Nplc,gamma0,r56,t566,u5666,g0)
               endif
@@ -524,6 +529,11 @@
                 else if(flagcsr.eq.3) then
                   call csrwakeSS2_FieldQuant(Nz,r0,hz,&
                               densz,gamma0,ezwake)
+                endif
+                !add csr shielding
+                if(flagcsr.eq.1 .and. NLimg.ge.1 .and. dvert.gt.0.0d0) then
+                  call csrwakeshieldSS_FieldQuant(Nz,r0,hz,&
+                              densz,gamma0,ezwake,dvert,Nlimg)
                 endif
              endif
 

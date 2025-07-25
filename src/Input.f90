@@ -113,7 +113,8 @@
 
         ! Input beam line element parameters.
         subroutine in2_Input(onblem,oblength,obnseg,obmpstp,&
-        obtype,value1,value2,value3,value4,value5,value6,value7,value8)
+        obtype,value1,value2,value3,value4,value5,value6,value7,value8,&
+               value9)
         implicit none
         integer,intent(in) :: onblem
         integer,intent(out) :: obnseg(onblem)
@@ -121,7 +122,7 @@
         integer,intent(out) :: obtype(onblem)
         double precision,intent(out) :: oblength(onblem)
         double precision,dimension(onblem),intent(out) :: value1,value2,&
-        value3,value4,value5,value6,value7,value8
+        value3,value4,value5,value6,value7,value8,value9
         integer :: i,irf
         integer :: myrank,ierr
         character*1 comst
@@ -134,6 +135,7 @@
         value6 = 0.0
         value7 = 0.0
         value8 = 0.0
+        value9 = 0.0
 
           i=0
 123       continue
@@ -143,7 +145,7 @@
               i = i + 1
               read(13,*)oblength(i),obnseg(i),obmpstp(i),obtype(i),&
               value1(i),value2(i),value3(i),value4(i),value5(i),value6(i),&
-              value7(i),value8(i)
+              value7(i),value8(i),value9(i)
             endif
             if(obtype(i).eq.-99)then
               goto 789

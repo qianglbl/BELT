@@ -989,5 +989,161 @@
 
         end subroutine csrwakeSS2_FieldQuant
 
+        subroutine csrwakeshieldSS_FieldQuant(Nx,r0,hx,rhonew,gam,ezwake,dvert,NL)
+        implicit none
+        integer, intent(in) :: Nx,NL
+        real*8 :: r0,hx,gam,dvert
+        real*8, dimension(Nx), intent(in) :: rhonew
+        real*8, dimension(Nx),intent(inout) :: ezwake
+        real*8, dimension(Nx) :: csrwk,csrwk2
+        integer :: i,j,il,ij
+        real*8 :: pilc,eps0,ss,sigz,sgnl,bet,yy,R,ds,angle,u0,wkcsr,ck,ang
+
+        sigz = (Nx-1)*hx/10 !scaling length
+        R = r0/sigz
+        bet = sqrt(1.0d0-1.0d0/gam**2)
+
+        !loop through NL image layers
+        csrwk = 0.0d0
+        csrwk2 = 0.0d0
+        sgnl = -1.0d0
+        do il = 1, NL
+          yy = dvert*il/sigz
+
+          !compute csr wake from each image layer
+          do i = 1, Nx
+            ds = (i-1)*hx/sigz
+            angle = rootcubic(bet,R,ds)
+            u0 = angle
+            call rootnewton(u0,ds,bet,R,yy,ang)
+            call wkfunc(bet,R,yy,ang,wkcsr)
+            csrwk(i) = csrwk(i) + 2*sgnl*wkcsr/sigz/sigz
+          enddo
+
+          do i = 1, Nx
+            ds = -(i-1)*hx/sigz
+            angle = rootcubic(bet,R,ds)
+            u0 = angle
+            call rootnewton(u0,ds,bet,R,yy,ang)
+            call wkfunc(bet,R,yy,ang,wkcsr)
+            csrwk2(i) = csrwk2(i) + 2*sgnl*wkcsr/sigz/sigz
+          enddo
+          sgnl = sgnl*(-1.0d0)
+        enddo
+
+        eps0 = 8.854187817d-12
+        pilc = 2*asin(1.0d0)
+        ck = 1.0d0/(4*pilc*eps0)
+        !add csr shielding on open csr wakefield
+        do j = 1, Nx
+           do i = 1, Nx
+             if(i.le.j) then
+               ij = j-i+1
+               ezwake(j) = ezwake(j) + csrwk(ij)*rhonew(i)*hx*ck
+             else
+               ij = (i-j)+1
+               ezwake(j) = ezwake(j) + csrwk2(ij)*rhonew(i)*hx*ck
+             endif
+           enddo
+        enddo
+
+        end subroutine csrwakeshieldSS_FieldQuant 
+
+!find root of the depressed cubic equation.
+!here, raidus R, and separation ds are normalized ones (by sigma_z)
+       function rootcubic(beta,R,ds)
+       implicit none
+       real*8, intent(in) :: beta,ds,R
+       real*8 :: rootcubic
+       real*8 :: p, q, u1, u2, det, rt, r1, r2
+
+       p = 24*(1.0d0-beta)
+       q = -24*ds/R
+       det = q**2/4+p**3/27
+       u1 = -q/2+sqrt(det)
+       u2 = -q/2-sqrt(det)
+
+       r1 = u1**(1.0d0/3.0d0)
+       r2 = u2/abs(u2)*(abs(u2))**(1.0d0/3.0d0)
+
+       rootcubic = r1 + r2
+
+       rt = rootcubic
+
+       end function
+
+       !find root using Newton's search
+       subroutine rootnewton(u0,ds,beta,R,y,ang)
+       implicit none
+       real*8, intent(in) :: ds,beta,R,y,u0
+       real*8, intent(out) :: ang
+       integer :: i, imax
+       !real*8 :: func,funcd2
+       real*8 :: tol,f1,f1d,u1,u2
+
+       imax = 200
+       tol = 1.0d-12
+
+       u1 = u0
+       do i = 1, imax
+         f1 = func(ds,beta,R,y,u1)
+         print*,"i,u1,f1:",i,u1,f1
+         if(abs(f1).lt.tol) exit
+         f1d = funcd2(ds,beta,R,y,u1)
+         u2 = u1 - f1/f1d
+         u1 = u2 
+       enddo
+
+       ang = u1
+
+       end subroutine
+
+
+       function func(ds,beta,R,y,u)
+       implicit none
+       real*8, intent(in) :: ds,u,beta,R,y
+       real*8 func
+       real*8 :: dl
+
+       dl = sqrt(2*R**2*(1.0d0-cos(u))+y**2)
+
+       func = R*u-beta*dl-ds
+
+       end function
+
+       function funcd2(ds,beta,R,y,u)
+       implicit none
+       real*8, intent(in) :: ds,u,beta,R,y
+       real*8 funcd2
+       real*8 :: dl,dldu
+
+       dl = sqrt(2*R**2*(1.0d0-cos(u))+y**2)
+       dldu = R**2*sin(u)/dl
+
+       funcd2 = R-beta*dldu
+
+       end function
+
+       subroutine wkfunc(beta,R,y,u,wkcsr)
+       implicit none
+       real*8, intent(in) :: u,beta,R,y
+       real*8, intent(out) :: wkcsr
+       real*8 :: dl,dl0,cth
+       real*8 :: dnum,dnum2,ddom,ddom2,f1,f2
+
+       dl0 = sqrt(2*R**2*(1.0d0-cos(u)))
+       dl = sqrt(2*R**2*(1.0d0-cos(u))+y**2)
+       cth = dl0/dl
+       dnum = cth*sin(u/2)*(cth*beta*cos(u/2)-beta**2*cos(u))-&
+              beta*sin(u)*(1.0d0-cth*beta*cos(u/2))
+       ddom = dl*(1.0d0-cth*beta*cos(u/2))**3
+       f1 = (beta**2/R)*dnum/ddom
+       dnum2 = cth*beta*cos(u/2)-beta**2*cos(u)
+       ddom2 = dl*ddom
+       f2 = dnum2/ddom2*(1.0d0-beta**2)
+
+       wkcsr = f1+f2
+
+       end subroutine
 
       end module BeamBunchclass

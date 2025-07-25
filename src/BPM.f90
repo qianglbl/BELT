@@ -17,7 +17,7 @@
 !                  given in Param(3) - Param(10).
 !----------------------------------------------------------------
       module BPMclass
-        integer, private, parameter :: Nparam = 8
+        integer, private, parameter :: Nparam = 10
         type BPM
           !Itype < 0
           integer :: Nseg,Mapstp,Itype
