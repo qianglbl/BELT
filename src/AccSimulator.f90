@@ -71,7 +71,7 @@
         double precision, allocatable, dimension(:) :: blength,val1,&
         val2, val3,val4,val5,val6,val7,val8,val9
         double precision :: z,zmin,zmax
-        double precision, dimension(8) :: tmpbpm
+        double precision, dimension(10) :: tmpbpm
         double precision, dimension(9) :: tmp1
         integer :: ibpm,isamp
         real*8 :: a0,a1,a2,a3,a4,a5,a6,a7,a8,a9

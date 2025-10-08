@@ -146,11 +146,12 @@
               read(13,*)oblength(i),obnseg(i),obmpstp(i),obtype(i),&
               value1(i),value2(i),value3(i),value4(i),value5(i),value6(i),&
               value7(i),value8(i),value9(i)
+
+              if(obtype(i).eq.-99)then
+                goto 789
+              endif
             endif
-            if(obtype(i).eq.-99)then
-              goto 789
-            endif
-          goto 123
+            goto 123
 789       continue
 
           do i = 1, onblem
