@@ -398,8 +398,11 @@
           endif
           if(bitype.eq.-39)then !instant enery increase
             deleng = beamln(i)%Param(2)
-            Bpts%refptcl(6) = Bpts%refptcl(6) + deleng/Bmass
+            Bpts%refptcl(6) = Bpts%refptcl(6) + ie*deleng/Bmass
 !            print*,"refpt eng:",(Bpts%refptcl(6)-1.d0)*Bmass
+            if(myid.eq.0) then
+              write(2,1011)z,(Bpts%refptcl(6)-1)*Bmass,Bpts%refptcl(6),zavg,zsig,deavg,desig
+            endif
           endif
           if(bitype.eq.-41)then
             tmpwk = beamln(i)%Param(2)
