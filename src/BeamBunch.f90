@@ -86,7 +86,7 @@
             tmppt = this%Pts1(2,i)+gam0
             tmph = sqrt(tmppt**2-1.0d0)
 !            print*,"ipt00: ",i,this%Pts1(1,i),(1.d0/beta0-tmppt/tmph)
-            this%Pts1(1,i) = this%Pts1(1,i)+(1.d0/beta0-tmppt/tmph)*tau
+            this%Pts1(1,i) = this%Pts1(1,i)+(1.d0/beta0-tmppt/tmph)*tau*beta0
 !            print*,"ipt: ",i,this%Pts1(1,i),(1.d0/beta0-tmppt/tmph)
           enddo
           z=z+tau
@@ -104,9 +104,10 @@
             if(flagfwd.eq.1) then
               gam0 = this%refptcl(6)
               gambet0 = sqrt(gam0**2-1.0d0)
+              beta0 = gambet0/gam0
               do i = 1, this%Nptlocal
                 this%Pts1(1,i) = this%Pts1(1,i) + &
-                               tau/gambet0**3*this%Pts1(2,i)
+                               tau/gambet0**3*this%Pts1(2,i)*beta0
               enddo
               !update the reference particle energy
               this%refptcl(6) = this%refptcl(6) + tau*vtmp*cos(phi0lc)
@@ -115,9 +116,10 @@
               this%refptcl(6) = this%refptcl(6) + tau*vtmp*cos(phi0lc)
               gam0 = this%refptcl(6)
               gambet0 = sqrt(gam0**2-1.0d0)
+              beta0 = gambet0/gam0
               do i = 1, this%Nptlocal
                 this%Pts1(1,i) = this%Pts1(1,i) + &
-                               tau/gambet0**3*this%Pts1(2,i)
+                               tau/gambet0**3*this%Pts1(2,i)*beta0
               enddo
             endif
 !            print*,"vtmp2: ",vtmp,phi0lc,tau,this%refptcl(6)
