@@ -127,8 +127,11 @@
             !if(nst.eq.nseg .and. mod(ihlf,2).eq.1) then
             !if(nst.eq.1 .and. mod(ihlf,2).eq.0) then
             if(mod(ihlf,2).eq.0) then
+              gam0 = this%refptcl(6)
+              gambet0 = sqrt(gam0**2-1.0d0)
+              beta0 = gambet0/gam0
               do i = 1, this%Nptlocal
-                phi = -rk*this%Pts1(1,i)+phi0lc
+                phi = -rk*this%Pts1(1,i)/beta0+phi0lc
                 !this%Pts1(2,i) = this%Pts1(2,i)+2*nseg*tau*vtmp*(cos(phi)-cos(phi0lc))
                 this%Pts1(2,i) = this%Pts1(2,i)+2*tau*vtmp*(cos(phi)-cos(phi0lc))
               enddo
