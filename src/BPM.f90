@@ -7,16 +7,10 @@
 ! Description: This class defines the different beam diagnostics at given
 !              beam position.
 ! Comments:
-!  1) Itype = -1, shift the transverse centroid position to 0.
-!  2) Itype = -2, shift the transverse centroid position and angle to 0.
-!                 (this one not work yet due to conflict of definition)
-!  3) Itype = -10, mismatch the beam distribution by the amount given in
-!                  Param(3) - Param(10).  
-!  4) Itype = -13, collimator slit
-!  5) Itype = -21, shift the beam centroid in 6D phase space by the amount
-!                  given in Param(3) - Param(10).
+!  1) Itype = -3, collimator slit
 !----------------------------------------------------------------
       module BPMclass
+        use mpistub
         integer, private, parameter :: Nparam = 10
         type BPM
           !Itype < 0
@@ -121,6 +115,36 @@
         btype = this%Itype
 
         end subroutine getparam3_BPM
+
+        !"-3" collimate particles longitudinally outside zmin and zmax
+        subroutine lost_BPM(Pts1,innp,nptot,zmin,zmax)
+        implicit none
+        include "mpif.h"
+        integer, intent(inout) :: innp,nptot
+        double precision, pointer, dimension(:,:) :: Pts1
+        double precision, intent(in) :: zmin,zmax
+        integer :: i,i0,ilost,ierr
+  
+        ilost = 0
+        do i0 = 1, innp
+          i = i0 - ilost
+          Pts1(:,i) = Pts1(:,i0)
+          if((Pts1(1,i0).lt.zmin) .and. (Pts1(1,i0).gt.zmax)) then
+            ilost = ilost + 1
+          endif
+        enddo
+
+        do i = innp - ilost + 1, innp
+          Pts1(1,i) = 0.0d0
+          Pts1(2,i) = 0.0d0
+          Pts1(3,i) = 0.0d0
+        enddo
+        innp = innp - ilost
+        call MPI_ALLREDUCE(innp,nptot,1,MPI_INTEGER,&
+                           MPI_SUM,MPI_COMM_WORLD,ierr)
+
+        end subroutine lost_BPM
+
 
        !"-55" introduce an instant R56 to the beam
         subroutine chicane_BPM(Pts1,innp,gamma0,r56,t566,u5666,g0)

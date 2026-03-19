@@ -300,7 +300,7 @@
         real*8 :: tmpwk,tmp1,lenwk,r0,deleng,g0
         real*8 :: driftbtbd
         integer :: sample
-        real*8 :: zmingl,zmaxgl
+        real*8 :: zmingl,zmaxgl,zbmin,zbmax
         integer :: ierr,ipt
         real*8, dimension(4) :: ztmplc,ztmpgl
         real*8 :: zavg,zsig,deavg,desig
@@ -391,6 +391,14 @@
             if(sample.eq.0) sample = 1
             call output(myid,commeblt,nproc,Nplc,sample,Nz,ifile,Bpts%Pts1,gamma0)
           endif
+
+          !collimate head and tail outside [zmin,zmax] region
+          if(bitype.eq.-3)then
+            zbmin = beamln(i)%Param(2)
+            zbmax = beamln(i)%Param(3)
+            call lost_BPM(Bpts%Pts1,Nplc,Np,zbmin,zbmax)
+          endif
+
           if(bitype.eq.-38)then !instant enery spread increase
             b0 = beamln(i)%Param(2)
             qmass = 1.0d0/Bmass
