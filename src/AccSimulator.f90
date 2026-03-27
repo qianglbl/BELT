@@ -763,11 +763,10 @@
         end subroutine output
 
         !The following subroutine increases the uncorrelated energy spread by heating
-        subroutine engheater(rays,innp,b0,qmass)
+        subroutine engheater(Pts1,innp,b0,qmass)
         implicit none
         include 'mpif.h'
         integer, intent(in) :: innp
-        double precision, intent (in), dimension (3,innp) :: rays
         double precision, pointer, dimension(:,:) :: Pts1
         real*8 :: b0,qmass
         real*8, dimension(innp) :: rd
