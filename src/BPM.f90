@@ -129,7 +129,7 @@
         do i0 = 1, innp
           i = i0 - ilost
           Pts1(:,i) = Pts1(:,i0)
-          if((Pts1(1,i0).lt.zmin) .and. (Pts1(1,i0).gt.zmax)) then
+          if((Pts1(1,i0).lt.zmin) .or. (Pts1(1,i0).gt.zmax)) then
             ilost = ilost + 1
           endif
         enddo
