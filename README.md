@@ -17,6 +17,8 @@ its behalf a paid-up, nonexclusive, irrevocable, worldwide license in the
 Software to reproduce, distribute copies to the public, prepare derivative
 works, and perform publicly and display publicly, and to permit others to do so.
 
+This code can be integrated together with a parallel multi-objective optimizer: (https://github.com/qianglbl/PVPmoo)
+for longitudinal beam dynamics optimization.
 -------------------------
 Contact: Ji Qiang (jqiang@lbl.gov), LBNL
 -------------------------
